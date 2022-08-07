@@ -3,137 +3,103 @@ package com.example.lesson2_14;
 import com.example.lesson2_14.Exceptions.ArrayOutOfLimitException;
 import com.example.lesson2_14.Exceptions.ItemNotFoundException;
 
+import java.util.Arrays;
+
 
 public class WorkToArray implements StringList {
 
-    private static final int DEFAULT_SIZE = 5;
-    private String[] storage;
+    private int size;
+    private final String[] storage;
 
-    public WorkToArray(int n) {
-        this.storage = new String[n];
+    public WorkToArray(int arraySize) {
+        storage = new String[arraySize];
     }
 
     public WorkToArray() {
-        this.storage = new String[DEFAULT_SIZE];
+        storage = new String[5];
     }
 
     @Override
     public String add(String item) {
-        for (int i = 0; i < storage.length; i++) {
-            if (storage[i] == null) {
-                storage[i] = item;
-            }
-        }
+        validateSize();
+        validateItem(item);
+        storage[size++] = item;
+
         return item;
     }
 
     @Override
     public String add(int index, String item) {
-        for (index = 0; index < storage.length; index++) {
-            if (storage[index] == null) {
-                if (index > DEFAULT_SIZE) {
-                    throw new ArrayOutOfLimitException("В массиве места больше нет");
-                }
-                storage[index] = item;
-            }
+        validateSize();
+        validateItem(item);
+        validateIndex(index);
+
+        if (index == size) {
+            storage[size++] = item;
+            return item;
         }
+        System.arraycopy(storage, index, storage, index + 1, size - index);
+        storage[index] = item;
+        size++;
+
         return item;
     }
 
     @Override
     public String set(int index, String item) {
-        for (index = 0; index < storage.length; index++) {
-            if (index > DEFAULT_SIZE) {
-                throw new ArrayOutOfLimitException("В массиве места больше нет");
-            }
-            storage[index] = item;
-        }
+        validateIndex(index);
+        validateItem(item);
+        storage[index] = item;
         return item;
     }
 
     @Override
     public String remove(String item) {
-        String[] newArray = null;
-        for (int i = 0; i < storage.length - 1; i++) {
-            if (item == storage[i]) {
-                if (i < 0 || i > storage.length || !storage[i].contains(item)) {
-                    throw new ItemNotFoundException("Элемент не найден");
-                }
-                newArray = new String[storage.length - 1];
-                for (int index = 0; index < i; index++) {
-                    newArray[index] = storage[index];
-                }
-                for (int j = i; j < storage.length - 1; j++) {
-                    newArray[j] = storage[j + 1];
-                    break;
-                }
-            }
-        }
-        return item;
+        validateItem(item);
+        int index = indexOf(item);
+        return remove(index);
     }
 
     @Override
     public String remove(int index) {
-        String item = new String();
-        String[] newArray = null;
-        if (index < 0 || index > storage.length) {
-            throw new ItemNotFoundException("Элемент не найден");
+        validateIndex(index);
+        String item = storage[index];
+        if (index != size) {
+            System.arraycopy(storage, index + 1, storage, index, size - index);
         }
-        for (int i = index + 1; index < storage.length - 1; index++) {
-            storage[i - 1] = storage[i];
-        }
-        for (int j = index; j < storage.length - 1; j++) {
-            newArray[j] = storage[j + 1];
-            break;
-        }
+        size--;
         return item;
     }
 
     @Override
     public boolean contains(String item) {
-        for (String s : storage) {
-            if (item.equals(s)) {
-                return true;
-            }
-        }
-        return false;
+        return indexOf(item) != -1;
     }
 
     @Override
     public int indexOf(String item) {
-        int index = -1;
-        for (int i = 0; i < storage.length && index == -1; i++) {
-            if (storage[i] == item) {
-                index = i;
+        for (int i = 0; i < size; i++) {
+            if (storage[i].equals(item)) {
+                return i;
             }
         }
-        return index;
+        return -1;
     }
 
     @Override
     public int lastIndexOf(String item) {
-        int index = -1;
-        for (int i = storage.length; i != 0; i--) {
-            if (storage[i] == item) {
-                index = i;
+        for (int i = size - 1; i >= 0; i--) {
+            if (storage[i].equals(item)) {
+                return i;
             }
         }
-        return index;
+        return -1;
     }
 
     @Override
     public String get(int index) {
-        String item = new String();
-        index = -1;
-        if (index < 0 || index > storage.length) {
-            throw new ItemNotFoundException("Элемент не найден");
-        }
-        for (int i = 0; i < storage.length && index == -1; i++) {
-            if (storage[i] == item) {
-                index = i;
-            }
-        }
-        return item;
+        validateIndex(index);
+        return storage[index];
     }
 
     @Override
@@ -146,33 +112,39 @@ public class WorkToArray implements StringList {
 
     @Override
     public int size() {
-        int count = 0;
-        for (int i = 0; i < storage.length; i++) {
-            count++;
-        }
-        return count;
+        return size;
     }
 
     @Override
     public boolean isEmpty() {
-        if (storage.length == 0) {
-            return true;
-        }
-        return false;
+        return size == 0;
     }
 
     @Override
     public void clear() {
-        String[] s = new String[]{};
-        storage = s;
+        size = 0;
     }
 
     @Override
     public String[] toArray() {
-        String[] s = new String[storage.length];
-        for (int i = 0; i < storage.length; i++) {
-            s[i] = storage[i];
+        return Arrays.copyOf(storage, size);
+    }
+
+    private void validateItem(String item) {
+        if (item == null) {
+            throw new ItemNotFoundException("Элемент не найден");
         }
-        return s;
+    }
+
+    private void validateSize() {
+        if (size == storage.length) {
+            throw new ArrayOutOfLimitException("хранилище заполнено");
+        }
+    }
+
+    private void validateIndex(int index) {
+        if (index < 0 || index > size) {
+            throw new ItemNotFoundException("Элемент не найден");
+        }
     }
 }

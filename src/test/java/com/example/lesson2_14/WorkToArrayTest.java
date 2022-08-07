@@ -13,7 +13,8 @@ class WorkToArrayTest {
 
     @Test
     void shouldReturnAddWorkToArray() {
-        String[] expected = new String[]{PRIVET, POKA};
+        String[] expected = new String[]{PRIVET};
+
 
 
     }
