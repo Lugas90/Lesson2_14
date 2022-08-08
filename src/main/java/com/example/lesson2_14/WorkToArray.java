@@ -16,7 +16,7 @@ public class WorkToArray implements StringList {
     }
 
     public WorkToArray() {
-        storage = new String[5];
+        storage = new String[3];
     }
 
     @Override
@@ -104,7 +104,7 @@ public class WorkToArray implements StringList {
 
     @Override
     public boolean equals(StringList otherList) {
-        if (otherList.equals(storage) == true) {
+        if (otherList.equals(storage)) {
             return true;
         }
         return false;
@@ -122,7 +122,10 @@ public class WorkToArray implements StringList {
 
     @Override
     public void clear() {
-        size = 0;
+        for (int i = 0; i < storage.length; i++) {
+            storage[i] = String.valueOf(null);
+            size = 0;
+        }
     }
 
     @Override
@@ -146,5 +149,23 @@ public class WorkToArray implements StringList {
         if (index < 0 || index > size) {
             throw new ItemNotFoundException("Элемент не найден");
         }
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(storage);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WorkToArray that = (WorkToArray) o;
+        return Arrays.equals(storage, that.storage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(storage);
     }
 }
